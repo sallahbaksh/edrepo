@@ -1,0 +1,671 @@
+/*  File: main.css
+    Purpose: Style for EdRepo's new interface.
+    Author: Jon Thompson
+    Created: 4/11/2011
+*/
+
+/* Reset browser defaults  */
+@import url('reset.css');
+
+
+/*** GENERAL LAYOUT ************************************************/
+
+body {
+  text-align: center;
+  font-family: Verdana, Arial, sans-serif;
+  font-size: 10pt;
+  background: #fff url(bg.png) no-repeat center top;
+}
+
+#container {
+  width: 980px;
+  margin: 0 auto;
+  text-align: left;
+  position: relative;
+}
+
+#footer {
+  margin-top: 15px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+
+
+/*** TOP-BAR ************************************************/
+/* holds the search and the "Login/My Account" button */
+
+#top-bar {
+  text-align: right;
+  border: 1px solid #000;
+  border-width: 0 1px 1px 1px;
+  background: #eee;
+}
+
+#top-bar form, #top-bar a {
+  display: inline-block;
+  padding: 5px;
+}
+
+#top-bar form input[type=text],
+#top-bar form input[type=password] {
+  border: 1px solid #333;
+}
+
+#top-bar a#account-btn {
+  padding: 10px 25px;
+  border-left: 1px solid #000;
+  background: #387aff url(grad.png) repeat-x left bottom;
+  color: #fff;
+  text-decoration: none;
+}
+
+#top-bar a#account-btn:hover {
+  background-color: #589aff;
+}
+
+#top-bar a img {
+  position: relative;
+  top: 2px;
+}
+
+#account {
+  position: absolute;
+  top: 35px;
+  right: 0;
+  z-index: 33;
+  border: 1px solid #000;
+  border-top: 0;
+  padding: 5px;
+  
+  background: #d5e1ff;
+  display: none;
+}
+
+#account ul {
+  text-align: left
+}
+
+#account ul a {
+  color: #000;
+  width: 94%;
+  text-decoration: none;
+}
+
+#account ul a:hover {
+  background-color: #92B6FF;
+}
+
+
+
+/*** LOGO ************************************************/
+
+#header h1 {
+  font-size: 3em;
+  margin: 20px 0;
+}
+
+#header h1 a {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+}
+
+
+
+/*** NAV ************************************************/
+/* the main navigation/menu */
+
+#nav {
+  padding-left: 10px;
+  margin-top: 10px;
+  background: url(nav.gif) left bottom repeat-x;
+}
+
+#nav ul {
+  display: table;
+}
+
+#nav li {
+  display: table-cell;
+  padding-right: 5px;
+}
+
+#nav li a {
+  display: block;
+  padding: 10px 15px;
+  border: 1px solid #000;
+  
+  -moz-border-radius: 10px 10px 0 0;
+  -webkit-border-radius: 10px 10px 0 0;
+  -khtml-border-radius: 10px 10px 0 0;
+  border-radius: 10px 10px 0 0;
+  
+  background: #eee url(grad.png) repeat-x left bottom;
+  color: #000;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+#nav li a:hover { background-color: #f9f9f9; }
+
+/* rules for the "active" tab/menu link */
+#nav li.active a, #nav li.active a:hover {
+  background-color: #eee;
+  background-image: none;
+  border-bottom: 1px solid #eee;
+}
+
+
+
+/*** CONTENT ************************************************/
+/* rules for the basic items in the main content
+    e.g. headings, paragraphs, etc. */
+
+#content {
+  padding: 15px;
+  border: 1px solid #000;
+  border-top: 0;
+  background: #eee;
+  line-height: 1.5em;
+}
+
+#content h1 {
+  font-size: 2em;
+  line-height: 1.2em;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #333;
+}
+
+#content h2 {
+  font-size: 1.5em;
+  padding: 0 0 10px 3px;
+}
+
+#content h3 {
+  font-size: 1.25em;
+  padding: 5px 0 10px 3px;
+}
+
+#content p {
+  padding: 0 10px;
+  margin: 10px 0;
+}
+
+#content p.module-details {
+  margin: 0;
+  padding: 0;
+  text-align: right;
+}
+
+#content .section {
+  margin-bottom: 20px;
+}
+
+#content p.alert {
+	padding: 10px;
+	padding-left: 40px; /* 5px padding + 30px background image + 5px padding */
+	border-width: 1px;
+	border-style: solid;
+}
+
+#content p.alert img {display: none} /* hides old alert images; this can be deleted if old <img> tags are removed*/
+
+#content p.positive {
+	border-color: #4a4;
+	background-color: #cfc;
+	background: #cfc url(success.png) no-repeat 5px center;
+}
+
+#content p.negative {
+	border-color: #a44;
+	background-color: #fcc;
+	background: #fcc url(failure.png) no-repeat 5px center;
+}
+
+#content fieldset {
+  border: 1px solid #666;
+  padding: 5px;
+  margin-left: 5px;
+}
+
+/* this applies to fieldsets not in a form (like those on the admin page) */
+#content > fieldset {
+  margin-top: 10px;
+  width: 200px;
+}
+
+#content fieldset ul {
+  list-style-type: square;
+}
+
+#content dl {
+  padding: 0 15px;
+  list-style-type: square;
+}
+
+#content dl dd {
+  padding-left: 20px;
+}
+
+legend {
+  font-size: 1.25em;
+  padding: 0 5px;
+}
+
+strong {
+  font-weight: bold;
+}
+
+sub {
+  vertical-align: sub;
+  font-size: xx-small;
+}
+
+sup {
+  vertical-align: super;
+  font-size: xx-small;
+}
+
+#content #panel {
+  width: 200px;
+  padding-right: 15px;
+  display: table-cell;
+}
+
+#content #collapse {
+  width: 5px;
+  display: table-cell;
+  background: #666;
+  cursor: pointer;
+}
+
+#content .jstree {
+  background: #eee;
+  margin-left: 0;
+}
+
+#content .jstree #current > span{
+  font-weight: bold;
+}
+
+#content .jstree li {
+  margin-left: -8px;
+}
+#content .jstree > ul > li {
+  margin-left: -30px;
+}
+
+#content #page {
+  padding-left: 15px;
+  display: table-cell;
+}
+
+#hierarchy a.has-material {
+  background: url(doc.png) no-repeat center right;
+  padding-right: 20px;
+}
+
+#nsf-logo {
+  float: left;
+  margin-right: 1em;
+}
+
+
+/*** FORMS ************************************************/
+
+#content  form {
+  padding: 5px;
+  border: 1px solid #ccc;
+  margin: 10px 0;
+}
+
+/* form in a table */
+#content td form {
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+#content form label {
+  display: inline-block;
+  width: 175px;
+  text-align: right;
+}
+
+#content fieldset.buttons {
+  padding-left: 180px;
+  border: 0;
+}
+
+#content fieldset.buttons .button {
+  margin-right: 10px;
+}
+
+#content ul {
+  list-style-type: square;
+  margin-left: 30px;
+}
+
+#content input, #content textarea {
+  font-family: Verdana, Arial, sans-serif;
+  font-size: 10pt;
+}
+
+/* groups together a label and input */
+.fieldRow {
+  margin-bottom: 5px;
+}
+
+div.error label {
+  color: #f00;
+}
+
+div.error input {
+  border: 1px solid #f00;
+}
+
+.subblock form {
+  margin: 10px;
+}
+
+form#filters {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+form#filters fieldset {
+  margin: 0;
+  padding: 10px 0;
+  border: 0;
+  border-bottom: 1px solid #333;
+}
+
+form#filters h3 {
+  margin: 0;
+  padding: 0;
+  font-weight: bold;
+  font-size: 1em;
+}
+
+form#filters h3 span {
+  font-weight: normal;
+}
+
+form#filters label {
+  display: block;
+  text-align: left;
+  width: auto;
+}
+
+form#filters ul.checkboxes {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+  max-height: 100px;
+  overflow: auto;
+}
+
+form#filters ul.checkboxes li {
+  /* create hanging indent */
+  margin-left: 30px;
+  text-indent: -30px;
+}
+
+.hierarchyConfig {
+  padding-right: 15px;
+  border-right: 1px solid #333;
+  display: table-cell;
+}
+
+#content .hierarchyConfig form {
+  border: 0;
+}
+
+.hierarchyModules {
+  padding-left: 15px;
+  display: table-cell;
+}
+
+#content form td label {
+  width: 100%;
+}
+
+
+
+/*** LINKS ************************************************/
+
+a, .jstree ul li a {
+  font-weight: bold;
+  color: #387aff;
+  text-decoration: underline;
+}
+
+a img {
+  border: 0;
+}
+
+a:hover, .jstree ul li a:hover {
+  text-decoration: none;
+}
+
+a.disabled, a.disabled:hover {
+  color: #999;
+}
+
+/* defines the "button" class */
+a.button, input.button, button.button {
+  display: inline-block;
+  padding: 1px 3px;
+  background: #fff url(grad.png) repeat-x bottom left;
+  border: 1px solid #000;
+  border-top-color: #333;
+  border-left-color: #333;
+  
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+  
+  color: #000;
+  font-weight: bold;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+a.button:hover { color: #000 }
+
+/* button in a table */
+table a.button { padding: 3px }
+  
+#panel li.current > a {font-style: italic;}
+
+  
+/*** TABLES ************************************************/
+
+table {
+  margin-left: 10px;
+}
+
+tr {
+  border-bottom: 1px solid #ccc;
+}
+
+tr:hover { background: #ddd }
+
+td, th {
+  padding: 5px;
+  /*padding-right: 5px;     This caused an overflow of information*/
+}
+
+/* rules for "highlighted" fields in a table, e.g. the headings for a table */
+th, th:hover, tr.highlight, td.highlight, tr.highlight:hover, td.highlight:hover {
+  background-color: #92B6FF;
+  font-weight: bold;
+  border-bottom: 1px solid #000;
+}
+
+/* sortable class is for tables that have columns that, when clicked, are sorted */
+.sortable th:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+th.sorttable_nosort:hover {
+  cursor: auto;
+  text-decoration: none;
+}
+
+tr.details:first-child {
+  border-right: 1px solid #ccc;
+}
+
+
+
+/* MODULE WIZARD *********************************************************/
+
+/* "tabular" class is used for forms that should look like a table (e.g. the wizard) */
+form.tabular {
+  margin-top: 0;
+}
+
+form.tabular div.fieldRow {
+  border-bottom: 1px solid #ccc;
+  padding: 10px 0;
+}
+
+form.tabular div.fieldInput, form.tabular label {
+  display: inline-block;
+  vertical-align: middle;
+  padding-right: 20px;
+  text-align: left !important;
+}
+
+form.tabular label {
+  width: 300px;
+}
+
+/* for fields like "objectives" that have a user-defined number of items */
+/* Class groups together an input, text and (possibly) a remove button */
+.fieldItem {
+  border: 1px solid #ccc;
+  padding: 3px;
+  margin: 5px 0;
+}
+
+.fieldItem * { vertical-align: middle}
+
+.fieldItem button {
+  float: right;
+  margin: 0 0 0 25px;
+}
+
+/* left, center and right, are to separate the wizard buttons at the bottom of the page */
+#left, #center, #right {display: table-cell; width: 240px;}
+#left {text-align: left;}
+#center {text-align: center;}
+#right {text-align: right;}
+
+#wizard {
+  margin: 10px 0 0 0;
+}
+
+#wizard-nav {
+  display: table-cell;
+  width: 200px;
+  border-right: 1px solid #333;
+  vertical-align: top;
+}
+
+#wizard-form {
+  padding-left: 15px;
+  display: table-cell;
+  width: 100%;
+}
+
+#wizard #wizard-form form {
+  border: 0;
+  margin: 0;
+}
+
+
+#wizard-nav fieldset{
+  border: 0;
+  padding: 0;
+  margin: 10px 0;
+}
+
+#wizard-nav li {
+  padding-top: 10px;
+}
+
+#wizard-nav .tabs li {padding: 0}
+
+#wizard-nav .tabs input, #wizard-nav ul.tabs li a {
+  padding: 10px 15px;
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid #333;
+  background: transparent;
+  
+  color: #000;
+  text-align: left;
+  text-decoration: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#wizard-nav ul.tabs li a {
+  display: block;
+  width: 170px;
+}
+
+#wizard-nav .tabs input:hover, #wizard-nav ul.tabs li a:hover {
+  text-decoration: underline;
+  background: #ddd;
+}
+
+#wizard-nav .tabs input.active, #wizard-nav .tabs input.active:hover, #wizard-nav ul.tabs li.active a, #wizard-nav ul.tabs li.active a:hover {
+  background: #444;
+  color: #fff;
+}
+
+#wizard-nav ul {
+  margin: 0;
+  list-style-type: none;
+}
+
+#materialForms {
+  width: 60%;
+  padding-right: 15px;
+  border-right: 1px solid #333;
+  display: table-cell;
+}
+
+#materialList {
+  padding-left: 15px;
+  display: table-cell;
+}
+
+#materialList table {
+  margin-bottom: 30px;
+}
+
+#content form.narrow label {
+  width: 95px;
+}
+
+#content form.narrow fieldset.buttons {
+  padding-left: 100px;
+}
+
+
+/* FOOTER *********************************************************/
+#footer p {
+  padding: 0 10px;
+  margin: 5px 0;
+  line-height: 1.5em;
+}
+

@@ -1,0 +1,265 @@
+<?php session_start();
+/****************************************************************************************************************************
+ *    viewModule.php - Displays the contents of a module.
+ *    --------------------------------------------------------------------------------------
+ *  Displays the contents of a module (metadata, materials, material metadata, etc).
+ *
+ *  Version: 1.0
+ *  Author: Ethan Greer
+ *	Edited by: Andrew Hagner 2/12/2011
+ *			- Made Module Ranking and Material Ranking labels distinguishable 
+ *                      Jon Thompson 5/18/2011
+ *                        - Converted to new interface and to use Smarty templates
+ *  Notes: - This page can take the following GET or POST parameters:
+ *          forceView: If set to "true", will attempt to view modules, even if they are not active in the collection.  Only Editors,
+ *                     Admins, and the module's creator may force view modules.
+ *          moduleID: The ID of the module to view.  Required, or the page will prompt for an ID.
+ *          root : ID of the module to make root in hierarchy tree
+ ******************************************************************************************************************************/
+  
+  require("lib/config.php");
+
+  $smarty->assign("title", $COLLECTION_NAME . " - Browse - View Resource");
+    // title of this page. For most pages: &COLLECTION . " - Title" , default: $COLLECTION_NAME
+  $smarty->assign("tab", "browse"); // active nav tab. default:  "home"
+  $smarty->assign("baseDir", getBaseDir() ); // should always be getBaseDir() 
+  
+  $smarty->assign("pageName", "View Resource");
+  
+  $smarty->assign("alert", array("type"=>"", "message"=>"") );
+                  // default empty alert message (type can be either positive or negative)  
+				  
+  $module=getModuleByID($_REQUEST["moduleID"]);
+  $group = $userInformation["groups"];
+  $restrictions = $module["restrictions"];
+  $canView = FALSE; 
+  
+  if($group == "None" || $group == "Admin" || $restrictions == $group || $restrictions == "None" || $userInformation["userID"] == $module["submitterUserID"]) {
+	$canView = TRUE; 
+  }
+  $smarty->assign("canView", $canView);   
+  
+if(isset($userInformation) && ($userInformation["type"]=="Admin")) {
+	$smarty->assign("canSeeComments", TRUE); 
+}
+
+if(isset($_REQUEST["moduleID"])) { //Did we get a module ID?
+  /* Gather information about this module (including materials, categories, types, prereqs, etc). */
+  $module=getModuleByID($_REQUEST["moduleID"]);
+  if($module===FALSE || count($module)<=0) { //If the backend reported an error getting the module, or returned an empty array, assume the module doesn't exist.
+    $smarty->assign("noModule", true);
+  } else { //This else block runs is a module with the specified ID was found.  It determines if the user may view the module, and if they can, displays it.
+    $smarty->assign("noModule", false);
+    $smarty->assign("module", $module);
+	$smarty->assign("CheckInComments", $module["checkInComments"]); 
+	
+    if(in_array("UseMaterials", $backendCapabilities["read"])) { //Does the back-end support reading modules?
+      $materials=getAllMaterialsAttatchedToModule($module["moduleID"]);
+    } else { //This else blcok runs if the back-end doesn't support reading materials.
+      $materials=FALSE;
+    }
+    
+    $root = $module["moduleID"];
+    if (isset($_REQUEST["root"])) {
+      $root = $_REQUEST["root"];
+    }
+    $smarty->assign("root", $root);
+    if (isset($userInformation)) {
+      $tree = getTreeHTML($root, $module["moduleID"], $userInformation);
+    } else {
+      $tree = getTreeHTML($root, $module["moduleID"]);
+    }
+    $smarty->assign("tree", $tree);
+    
+    $authors=getModuleAuthors($module["moduleID"]);
+    $prereqs=getModulePrereqs($module["moduleID"]);
+    $topics=getModuleTopics($module["moduleID"]);
+    $objectives=getModuleObjectives($module["moduleID"]);
+    
+    $moduleChildrenID = array();
+    $moduleParentsID = array();
+    $moduleChildren = array();
+    $moduleParents = array();
+    $moduleParentsID=getParents($module["moduleID"]);
+    $moduleChildrenID=getChildren($module["moduleID"]);
+    
+    $internalReferences = getInternalReferences($module["moduleID"]);
+    $seeAlso = array();
+    foreach ($internalReferences as $reference) {
+      $referencedModule = getModuleByID( $reference["referencedModuleID"] );
+      // if valid reference
+      if ($referencedModule["moduleID"] == $reference["referencedModuleID"] ) {
+        array_push($seeAlso, array("description"=>$reference["description"],
+          "referencedModuleID"=>$reference["referencedModuleID"], 
+          "title"=>$referencedModule["title"]) );
+      }
+    }
+    
+    $externalReferences = getExternalReferences($module["moduleID"]);
+    
+    foreach($moduleParentsID as $moduleParentID) {
+      $parentModule = getModuleByID($moduleParentID);
+      if((isset($userInformation) && canUserViewModule($parentModule, $userInformation)) ||
+         canUserViewModule($parentModule)) {
+        array_push($moduleParents, $parentModule);
+      }
+    }
+    foreach($moduleChildrenID as $moduleChildID) {
+      array_push($moduleChildren,getModuleByID($moduleChildID));
+    }	 
+    if(in_array("UseCategories", $backendCapabilities["read"])) { //Only get categories if the back-end supports reading module categories.
+      $categories=getModuleCategoryIDs($module["moduleID"]); //Grab all category IDs which are attatched to the module.
+    } else { //This else block runs if the back-end doesn't support categories.
+      $categories=FALSE; //Set the category to FALSE to alert later code not to display any category.
+    }
+    if(in_array("UseTypes", $backendCapabilities["read"])) { //Only get types if the back-end supports reading module types.
+      $types=getModuleTypeIDs($module["moduleID"]); //Grab all type IDs which are attatched to the module.
+    } else { //This else block runs if the back-end doesn't support types.
+      $types=FALSE; //Set the type to FALSE to alert later code not to display any type.
+    }
+    /* Done gathering module/material/etc information. */
+    
+    // Determine if user can view the module.
+    $canViewModule=FALSE; 
+    if(isset($userInformation)) {
+      $canViewModule=canUserViewModule($module, $userInformation);
+    } else {
+      $canViewModule=canUserViewModule($module);
+    }
+    $smarty->assign("canViewModule", $canViewModule);
+    
+    //Determine if user can edit module, the module submitter, editors, and admins can edit modules
+    $canEditModule=FALSE;
+    if (isset($userInformation)) {
+      if ($module["submitterUserID"]==$userInformation["userID"] || 
+          $userInformation["type"]=="Editor" || 
+          $userInformation["type"]=="Admin") 
+      {
+        $canEditModule=TRUE;
+      }
+    }
+    $smarty->assign("canEditModule", $canEditModule);
+
+    if($canViewModule===TRUE) { //Did we determine that the user can view the module?
+      $smarty->assign("pageName", $module["title"]);
+      
+      $smarty->assign("NEW_MODULES_REQUIRE_MODERATION", $NEW_MODULES_REQUIRE_MODERATION);
+      
+      $submitter = getUserInformationByID($module["submitterUserID"]);
+      $smarty->assign("submitter", $submitter);
+      
+      $smarty->assign("showAuthors", false);
+      if($authors!==FALSE && $authors!=="NotImplimented" && count($authors)>=1) { //display found authors, but only if we successfully found some.
+        $smarty->assign("showAuthors", true);
+        $smarty->assign("authors", $authors);
+      }
+      
+      
+      $smarty->assign("showCategories", false);
+      if($categories!=="NotImplimented" && $categories!==FALSE && count($categories)>=1) { //Only display a category if we earlier determined the back-end actually supported categories.
+        $smarty->assign("showCategories", true);
+        
+        $categoryNames = array();        
+        for($i=0; $i<count($categories); $i++) {
+          $category=getCategoryByID($categories[$i]);
+          $categoryNames[$i] = $category["name"];
+        }
+        $smarty->assign("categoryNames", $categoryNames);
+      }
+      
+      $smarty->assign("showTypes", false);
+      if($types!=="NotImplimented" && $types!==FALSE && count($types)>=1) { //Only display a type if we earlier determined the back-end actually supported types.
+        $smarty->assign("showTypes", true);
+        
+        $typeNames = array();        
+        for($i=0; $i<count($types); $i++) {
+          $type=getTypeByID($types[$i]);
+          $typeNames[$i] = $type["name"];
+        }
+        $smarty->assign("typeNames", $typeNames);
+      }
+      
+      $smarty->assign("readRatings", false);
+      $smarty->assign("writeRatings", false);
+      if(in_array("RateModules", $backendCapabilities["read"])) { //Show the module's rating, if the backend supports reading module ratings.
+        $smarty->assign("readRatings", true);
+        $ratings=getModuleRatings($module["moduleID"]);
+        $smarty->assign("ratings", $ratings);
+        
+        if(in_array("RateModules", $backendCapabilities["write"])) { //Does the backend support writing module ratings?  If so, display a link to do so.
+          $smarty->assign("writeRatings", true);
+        }
+      }
+      
+      /* Displaying the cells/rows for topics, objectives, and prereqs works like this:
+        (1) Make sure there is at least one topic/objective/prereq to display.
+        (2) If (1) is true, than create a row with the proper lable (Topics/Objectives/Prerequisites) and make it span n number of rows, 
+          where n is the total number of topics/objectives/prereqs.  Also, on the same line, print the cell for the first
+          topic/objective/prereq and end the row.
+        (3) Print new rows and cells with the rest of the topics/objectives/prereqs, starting with the 2nd one (index [1]), since the 
+          first was already printed. */
+      $smarty->assign("topics", $topics);
+      $smarty->assign("objectives", $objectives);
+      $smarty->assign("prereqs", $prereqs);
+      
+      $smarty->assign("moduleChildrenID", $moduleChildrenID);
+      $smarty->assign("moduleChildren", $moduleChildren);
+      $smarty->assign("moduleParentsID", $moduleParentsID);
+      $smarty->assign("moduleParents", $moduleParents);
+      
+      $smarty->assign("seeAlso", $seeAlso);
+      $smarty->assign("externalReferences", $externalReferences);
+      
+      $smarty->assign("showMaterials", false);
+      if($materials!==FALSE && $materials!=="NotImplimented") { //Only show materials if we previously determined the back-end actually supports materials.
+        $smarty->assign("showMaterials", true);
+        $smarty->assign("materials", $materials);
+        if(count($materials)>0) { //This block runs if the module contains at least one material.
+          $materialInfo[] = array();
+          for($i=0; $i<count($materials); $i++) { //Loop through every material ID found, fetch the actual material, and display its metadata.
+            
+            $materialInfo[$i]=getMaterialByID($materials[$i]); //Get the actual information about the material.
+            //The number of rows the left column of the material details table must span is dependent on if we can show ratings or not.  So, 
+            //set the rowspan ($rowspan) to initially be the number to display if we can show ratings, and then decrease if if we can't 
+            //show ratings (becuase of the backend) and hence won't show the "ratings" row.
+            $materialInfo[$i]["rowspan"]=9;
+            $readRateMaterials = true;
+            if(!in_array("RateMaterials", $backendCapabilities["read"])) {
+              $materialInfo[$i]["rowspan"]--;
+              $readRateMaterials = false;
+            }
+            $smarty->assign("readRateMaterials", $readRateMaterials);
+            
+            if(in_array("RateMaterials", $backendCapabilities["read"])) { //Display the material's rating if the backend supports reading material ratings.
+              $ratings=getMaterialRatingsAndComments($materialInfo[$i]["materialID"]);
+              $materialInfo[$i]["numRatings"] = 0;
+              if(count($ratings)>0) {
+                $totalRating=0;
+                $numRatings=0;
+                for($j=0; $j<count($ratings); $j++) {
+                  $totalRating=$totalRating+$ratings[$j]["rating"];
+                  $numRatings++;
+                }
+                
+                $materialInfo[$i]["averageRating"] = round(($totalRating/$numRatings),2);
+                $materialInfo[$i]["numRatings"] = $numRatings;
+              }
+              
+              $writeRateMaterials = false;
+              if(in_array("RateMaterials", $backendCapabilities["write"])) { //If the backend supports writing ratings, give a link to rate the material.
+                $writeRateMaterials = true;
+              }
+              $smarty->assign("writeRateMaterials", $writeRateMaterials);
+            }
+          }
+          $smarty->assign("materialInfo", $materialInfo);
+        } // end count(materials) if
+      } // end 'backend supports' modules if
+    } // end 'user can view' if
+  }
+} else { //This else block runs if no moduleID was given
+  $smarty->assign("noModule", true);
+}
+
+  $smarty->display('viewModule.php.tpl');
+?>
