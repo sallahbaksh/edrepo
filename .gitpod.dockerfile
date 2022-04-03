@@ -1,2 +1,2 @@
 FROM gitpod/workspace-mysql
-FROM gitpod/workspace-php:5.6
+FROM gitpod/workspace-php:8.0
