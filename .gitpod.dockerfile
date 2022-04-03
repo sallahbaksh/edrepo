@@ -1,2 +1,4 @@
 FROM gitpod/workspace-mysql
-FROM gitpod/workspace-php:8.0
+
+# Install and configure php and php-fpm as specified in starter.ini
+RUN sudo bash -c ". /tmp/php.sh" && rm /tmp/php.sh
