@@ -2,7 +2,7 @@ FROM gitpod/workspace-mysql
 
 ### PHP ###
 USER root
-ENV PHP_VERSION=5.6
+ENV PHP_VERSION=7.2
 RUN add-apt-repository -y ppa:ondrej/php \
     && install-packages \
       php${PHP_VERSION}-cli php${PHP_VERSION}-gd \
