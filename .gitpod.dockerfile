@@ -1,1 +1,3 @@
-FROM php:5.6-cli
+# FROM php:5.6-cli
+FROM robocist/edrepo:latest
+
