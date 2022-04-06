@@ -15,6 +15,7 @@ GRANT ALL PRIVILEGES ON edrepo.* TO 'edrepo'@'localhost';
 ```
 
 4. In another terminal, enter:
+```cd EdRepo```
 ```php -S 127.0.0.1:8000```
 
 to serve the contents.
